@@ -10,16 +10,14 @@
       PIXEL_IDS: ["1253230530214080"],
 
       /*
-        你的客服系统 Railway widget.js
-        如果 Railway 网域不同，只要改这里
+        客服系统 Railway widget.js
+        如果你的 Railway 网域换了，只改这一行即可
       */
       CHAT_WIDGET_URL: "https://customer-chat-system-production.up.railway.app/widget.js",
 
       CHAT_SITE: "f1top-10usdt",
       CHAT_TITLE: "F1-TOP 注册送10USDT体验金",
-      CHAT_CAMPAIGN: "FB-广告A",
-
-      REDIRECT_DELAY: 300
+      CHAT_CAMPAIGN: "FB-广告A"
     };
 
     !function(f,b,e,v,n,t,s){
@@ -246,7 +244,7 @@
          class="cta-link"
          id="ctaBtn"
          data-area="main_cta"
-         aria-label="Open Chat Support"
+         aria-label="Open Online Support"
          rel="noopener">
         <img src="./images/btn.png" class="btn-img" alt="点击下载 注册送10U礼包" loading="eager" />
       </a>
@@ -263,10 +261,9 @@
   <script>
     (function(){
       var CHAT_WIDGET_URL = window.APP_CONFIG.CHAT_WIDGET_URL;
-      var CHAT_SITE = window.APP_CONFIG.CHAT_SITE;
-      var CHAT_TITLE = window.APP_CONFIG.CHAT_TITLE;
-      var CHAT_CAMPAIGN = window.APP_CONFIG.CHAT_CAMPAIGN;
-      var REDIRECT_DELAY = window.APP_CONFIG.REDIRECT_DELAY;
+      var CHAT_SITE = window.APP_CONFIG.CHAT_SITE || "f1top-10usdt";
+      var CHAT_TITLE = window.APP_CONFIG.CHAT_TITLE || "F1-TOP 注册送10USDT体验金";
+      var CHAT_CAMPAIGN = window.APP_CONFIG.CHAT_CAMPAIGN || "FB-广告A";
 
       var layer = document.getElementById("coinsLayer");
       var ctaBtn = document.getElementById("ctaBtn");
@@ -274,7 +271,9 @@
 
       var coinTimer = null;
       var isOpening = false;
-      var openTimer = null;
+
+      ctaBtn.href = "#chat";
+      tgSupport.href = "#chat";
 
       function createEventId(prefix) {
         var id = "";
@@ -315,9 +314,9 @@
           contact_method: "site_chat",
           click_area: area || "main_cta",
           destination: "internal_chat",
-          source_site: CHAT_SITE || "",
-          source_title: CHAT_TITLE || "",
-          campaign: CHAT_CAMPAIGN || "",
+          source_site: CHAT_SITE,
+          source_title: CHAT_TITLE,
+          campaign: CHAT_CAMPAIGN,
           value: 1.00,
           currency: "USD"
         };
@@ -327,19 +326,26 @@
         fbTrackCustom("SiteChatOpen", params, { eventID: createEventId("site_chat_open") });
       }
 
-      function buildChatPageHtml() {
-        var safeWidgetUrl = String(CHAT_WIDGET_URL || "");
-        var safeSite = String(CHAT_SITE || "f1top-10usdt");
-        var safeTitle = String(CHAT_TITLE || "F1-TOP 注册送10USDT体验金");
-        var safeCampaign = String(CHAT_CAMPAIGN || "FB-广告A");
+      function normalizeWidgetUrl(url) {
+        url = String(url || "");
 
-        var fullUrl = safeWidgetUrl;
+        if (!url) return "";
 
-        if (fullUrl.indexOf("http://") !== 0 && fullUrl.indexOf("https://") !== 0) {
-          fullUrl = "https://" + fullUrl;
+        if (url.indexOf("http://") !== 0 && url.indexOf("https://") !== 0) {
+          url = "https://" + url;
         }
 
-        fullUrl = fullUrl + (fullUrl.indexOf("?") === -1 ? "?v=" : "&v=") + Date.now();
+        return url;
+      }
+
+      function buildChatPageHtml() {
+        var widgetUrl = normalizeWidgetUrl(CHAT_WIDGET_URL);
+
+        if (!widgetUrl) {
+          widgetUrl = "https://customer-chat-system-production.up.railway.app/widget.js";
+        }
+
+        var widgetUrlWithCache = widgetUrl + (widgetUrl.indexOf("?") === -1 ? "?v=" : "&v=") + Date.now();
 
         return '<!doctype html>' +
           '<html lang="zh-CN">' +
@@ -348,42 +354,51 @@
           '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">' +
           '<title>在线客服</title>' +
           '<style>' +
-          'html,body{margin:0;width:100%;height:100%;background:#090909;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC",Arial,sans-serif;overflow:hidden;}' +
-          '.chat-page-bg{position:fixed;inset:0;background:radial-gradient(circle at top,#2b2108 0%,#090909 45%,#000 100%);}' +
-          '.chat-page-card{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(92vw,420px);padding:24px 18px;border:1px solid rgba(255,214,90,.38);border-radius:20px;background:rgba(15,15,15,.9);box-shadow:0 18px 50px rgba(0,0,0,.55);text-align:center;color:#fff;}' +
-          '.chat-page-title{font-size:22px;font-weight:900;color:#ffd966;margin-bottom:8px;}' +
-          '.chat-page-text{font-size:14px;line-height:1.6;color:#ddd;}' +
-          '.chat-page-loading{margin-top:16px;font-size:13px;color:#ffd966;}' +
+          'html,body{margin:0;width:100%;height:100%;background:#050505;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC",Arial,sans-serif;overflow:hidden;}' +
+          '.chat-bg{position:fixed;inset:0;background:radial-gradient(circle at top,#3a2805 0%,#111 42%,#000 100%);}' +
+          '.chat-card{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(92vw,420px);padding:24px 18px;border:1px solid rgba(255,214,90,.45);border-radius:20px;background:rgba(12,12,12,.94);box-shadow:0 18px 50px rgba(0,0,0,.65);text-align:center;color:#fff;}' +
+          '.chat-title{font-size:22px;font-weight:900;color:#ffd966;margin-bottom:8px;}' +
+          '.chat-text{font-size:14px;line-height:1.6;color:#ddd;}' +
+          '.chat-loading{margin-top:16px;font-size:13px;color:#ffd966;}' +
           '</style>' +
           '</head>' +
           '<body>' +
-          '<div class="chat-page-bg"></div>' +
-          '<div class="chat-page-card">' +
-          '<div class="chat-page-title">正在连接在线客服</div>' +
-          '<div class="chat-page-text">请稍候，客服聊天窗口马上为您打开。</div>' +
-          '<div class="chat-page-loading">Loading...</div>' +
+          '<div class="chat-bg"></div>' +
+          '<div class="chat-card" id="loadingCard">' +
+          '<div class="chat-title">在线客服</div>' +
+          '<div class="chat-text">正在为您连接客服，请稍候...</div>' +
+          '<div class="chat-loading">Loading...</div>' +
           '</div>' +
+
           '<script>' +
-          'window.addEventListener("load",function(){' +
+          '(function(){' +
           'var s=document.createElement("script");' +
-          's.src=' + JSON.stringify(fullUrl) + ';' +
+          's.src=' + JSON.stringify(widgetUrlWithCache) + ';' +
           's.async=true;' +
           's.defer=true;' +
-          's.setAttribute("data-site",' + JSON.stringify(safeSite) + ');' +
-          's.setAttribute("data-title",' + JSON.stringify(safeTitle) + ');' +
-          's.setAttribute("data-campaign",' + JSON.stringify(safeCampaign) + ');' +
+          's.setAttribute("data-site",' + JSON.stringify(CHAT_SITE) + ');' +
+          's.setAttribute("data-title",' + JSON.stringify(CHAT_TITLE) + ');' +
+          's.setAttribute("data-campaign",' + JSON.stringify(CHAT_CAMPAIGN) + ');' +
           's.setAttribute("data-auto-open","true");' +
           's.setAttribute("data-open-delay","300");' +
           's.setAttribute("data-button-text","💬");' +
           's.onload=function(){' +
           'setTimeout(function(){' +
-          'if(window.CustomerChat&&typeof window.CustomerChat.open==="function"){window.CustomerChat.open();}' +
-          '},500);' +
+          'if(window.CustomerChat&&typeof window.CustomerChat.open==="function"){' +
+          'window.CustomerChat.open();' +
+          '}' +
+          'var card=document.getElementById("loadingCard");' +
+          'if(card){card.style.display="none";}' +
+          '},700);' +
           '};' +
-          's.onerror=function(){alert("客服系统载入失败，请稍后再试。");};' +
+          's.onerror=function(){' +
+          'var card=document.getElementById("loadingCard");' +
+          'if(card){card.innerHTML="<div class=\\"chat-title\\">客服载入失败</div><div class=\\"chat-text\\">请返回上一页后重新点击。</div>";}' +
+          '};' +
           'document.body.appendChild(s);' +
-          '});' +
+          '})();' +
           '<\/script>' +
+
           '</body>' +
           '</html>';
       }
@@ -397,37 +412,76 @@
 
         trackChatOpen(area);
 
-        var chatWin = window.open("", "_blank", "noopener,noreferrer");
+        /*
+          必须在点击当下直接 window.open。
+          不能延迟，否则浏览器会挡新窗口。
+        */
+        var chatWin = window.open("about:blank", "_blank");
 
         if (!chatWin) {
-          alert("浏览器阻挡了新窗口，请允许弹出窗口后再试。");
+          openChatInCurrentPage();
           resetState();
           return;
         }
 
-        openTimer = setTimeout(function(){
+        try {
+          chatWin.document.open();
+          chatWin.document.write(buildChatPageHtml());
+          chatWin.document.close();
+        } catch(e) {
           try {
-            chatWin.document.open();
-            chatWin.document.write(buildChatPageHtml());
-            chatWin.document.close();
-          } catch(e) {
-            try {
-              chatWin.location.href = CHAT_WIDGET_URL;
-            } catch(err) {}
-          }
+            chatWin.close();
+          } catch(closeErr) {}
 
-          resetState();
-        }, REDIRECT_DELAY);
+          openChatInCurrentPage();
+        }
+
+        resetState();
+      }
+
+      function openChatInCurrentPage() {
+        var widgetUrl = normalizeWidgetUrl(CHAT_WIDGET_URL);
+
+        if (!widgetUrl) {
+          alert("客服系统网址未设置");
+          return;
+        }
+
+        var oldScript = document.getElementById("customerChatWidgetLoader");
+        if (oldScript && oldScript.parentNode) {
+          oldScript.parentNode.removeChild(oldScript);
+        }
+
+        var script = document.createElement("script");
+        script.id = "customerChatWidgetLoader";
+        script.src = widgetUrl + (widgetUrl.indexOf("?") === -1 ? "?v=" : "&v=") + Date.now();
+        script.async = true;
+        script.defer = true;
+
+        script.setAttribute("data-site", CHAT_SITE);
+        script.setAttribute("data-title", CHAT_TITLE);
+        script.setAttribute("data-campaign", CHAT_CAMPAIGN);
+        script.setAttribute("data-auto-open", "true");
+        script.setAttribute("data-open-delay", "300");
+        script.setAttribute("data-button-text", "💬");
+
+        script.onload = function(){
+          setTimeout(function(){
+            if (window.CustomerChat && typeof window.CustomerChat.open === "function") {
+              window.CustomerChat.open();
+            }
+          }, 500);
+        };
+
+        script.onerror = function(){
+          alert("客服系统载入失败，请稍后再试。");
+        };
+
+        document.body.appendChild(script);
       }
 
       function resetState() {
         isOpening = false;
-
-        if (openTimer) {
-          clearTimeout(openTimer);
-          openTimer = null;
-        }
-
         ctaBtn.classList.remove("is-disabled");
         tgSupport.classList.remove("is-disabled");
       }
