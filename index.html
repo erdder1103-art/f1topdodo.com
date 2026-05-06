@@ -9,7 +9,18 @@
     window.APP_CONFIG = {
       PIXEL_IDS: ["1253230530214080"],
       TARGET_URL: "https://t.me/F1top10usdt_bot",
-      SUPPORT_URL: "https://t.me/Dodo_1026",
+
+      /*
+        这里改成你的 Railway 客服系统 widget.js 网址
+        示例：
+        CHAT_WIDGET_URL: "https://xxxx.up.railway.app/widget.js",
+      */
+      CHAT_WIDGET_URL: "customer-chat-system-production.up.railway.app",
+
+      CHAT_SITE: "f1top-10usdt",
+      CHAT_TITLE: "F1-TOP 注册送10USDT体验金",
+      CHAT_CAMPAIGN: "FB-广告A",
+
       REDIRECT_DELAY: 800
     };
 
@@ -135,7 +146,7 @@
     }
 
     .cta-link.is-disabled,
-    .tg-fab.is-disabled {
+    .chat-fab.is-disabled {
       pointer-events: none;
       opacity: .95;
     }
@@ -155,7 +166,12 @@
       }
     }
 
-    .tg-fab {
+    /*
+      右侧客服按钮
+      如果你想继续使用原本 tg.png 图标，这里会自动使用 ./images/tg.png
+      点了之后不会跳 Telegram，会打开站内客服聊天窗口
+    */
+    .chat-fab {
       position: absolute;
       right: 14px;
       top: 55%;
@@ -164,13 +180,33 @@
       height: 58px;
       z-index: 12;
       display: block;
+      border: 0;
+      padding: 0;
+      cursor: pointer;
+      border-radius: 50%;
       background: url("./images/tg.png") center / contain no-repeat;
       filter: drop-shadow(0 7px 12px rgba(0, 0, 0, .35));
-      animation: tgBreathe 1.5s ease-in-out infinite;
+      animation: chatBreathe 1.5s ease-in-out infinite;
       -webkit-tap-highlight-color: transparent;
     }
 
-    @keyframes tgBreathe {
+    .chat-fab::after {
+      content: "客服";
+      position: absolute;
+      left: 50%;
+      bottom: -22px;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, .72);
+      color: #ffd966;
+      font-size: 12px;
+      font-weight: 800;
+      border: 1px solid rgba(255, 217, 102, .55);
+    }
+
+    @keyframes chatBreathe {
       0% {
         transform: translateY(-50%) scale(1);
       }
@@ -227,31 +263,29 @@
       </a>
     </div>
 
-    <a class="tg-fab"
-       id="tgSupport"
-       href="https://t.me/Dodo_1026"
-       target="_blank"
-       rel="noopener"
-       data-area="tg_support"
-       aria-label="Telegram Support"></a>
+    <!-- 右侧客服按钮：已改成打开站内聊天室，不再跳 Telegram -->
+    <button
+      class="chat-fab"
+      id="openChatBtn"
+      type="button"
+      data-area="site_chat_support"
+      aria-label="Open Online Support"></button>
   </div>
 
   <script>
     (function(){
       var TARGET_URL = window.APP_CONFIG.TARGET_URL;
-      var SUPPORT_URL = window.APP_CONFIG.SUPPORT_URL;
       var REDIRECT_DELAY = window.APP_CONFIG.REDIRECT_DELAY;
 
       var layer = document.getElementById("coinsLayer");
       var ctaBtn = document.getElementById("ctaBtn");
-      var tgSupport = document.getElementById("tgSupport");
+      var openChatBtn = document.getElementById("openChatBtn");
 
       var coinTimer = null;
       var isRedirecting = false;
       var redirectTimer = null;
 
       ctaBtn.href = TARGET_URL;
-      tgSupport.href = SUPPORT_URL;
 
       function createEventId(prefix) {
         var id = "";
@@ -300,17 +334,20 @@
         fbTrackCustom("TelegramBotClick", params, { eventID: createEventId("telegram_bot_click") });
       }
 
-      function trackSupportClick(area) {
+      function trackChatClick(area) {
         var params = {
-          content_name: "telegram_support_click",
-          content_category: "telegram_redirect",
-          contact_method: "telegram",
-          click_area: area || "tg_support",
-          destination: "telegram_support"
+          content_name: "site_chat_click",
+          content_category: "onsite_support",
+          contact_method: "site_chat",
+          click_area: area || "site_chat_support",
+          destination: "internal_chat",
+          source_site: window.APP_CONFIG.CHAT_SITE || "",
+          source_title: window.APP_CONFIG.CHAT_TITLE || "",
+          campaign: window.APP_CONFIG.CHAT_CAMPAIGN || ""
         };
 
         fbTrack("Contact", params, { eventID: createEventId("contact") });
-        fbTrackCustom("TelegramSupportClick", params, { eventID: createEventId("telegram_support_click") });
+        fbTrackCustom("SiteChatClick", params, { eventID: createEventId("site_chat_click") });
       }
 
       function go(url) {
@@ -326,7 +363,7 @@
         }
 
         ctaBtn.classList.remove("is-disabled");
-        tgSupport.classList.remove("is-disabled");
+        openChatBtn.classList.remove("is-disabled");
       }
 
       function spawnCoin() {
@@ -366,6 +403,29 @@
         coinTimer = null;
       }
 
+      function openCustomerChat() {
+        trackChatClick(openChatBtn.getAttribute("data-area") || "site_chat_support");
+
+        if (window.CustomerChat && typeof window.CustomerChat.open === "function") {
+          window.CustomerChat.open();
+          return;
+        }
+
+        var retryCount = 0;
+        var retryTimer = setInterval(function(){
+          retryCount++;
+
+          if (window.CustomerChat && typeof window.CustomerChat.open === "function") {
+            clearInterval(retryTimer);
+            window.CustomerChat.open();
+          }
+
+          if (retryCount >= 20) {
+            clearInterval(retryTimer);
+          }
+        }, 150);
+      }
+
       startCoins();
 
       document.addEventListener("visibilitychange", function(){
@@ -385,7 +445,7 @@
 
         isRedirecting = true;
         ctaBtn.classList.add("is-disabled");
-        tgSupport.classList.add("is-disabled");
+        openChatBtn.classList.add("is-disabled");
 
         trackBotClick(this.getAttribute("data-area") || "main_cta");
 
@@ -394,9 +454,52 @@
         }, REDIRECT_DELAY);
       }, { passive: false });
 
-      tgSupport.addEventListener("click", function(){
-        trackSupportClick(this.getAttribute("data-area") || "tg_support");
-      });
+      openChatBtn.addEventListener("click", function(e){
+        e.preventDefault();
+        openCustomerChat();
+      }, { passive: false });
+    })();
+  </script>
+
+  <!-- 站内客服系统：请把 CHAT_WIDGET_URL 换成你的 Railway 客服系统网址 -->
+  <script>
+    (function(){
+      var src = window.APP_CONFIG.CHAT_WIDGET_URL;
+
+      if (!src || src.indexOf("你的Railway網址") !== -1) {
+        console.warn("请先把 window.APP_CONFIG.CHAT_WIDGET_URL 改成你的 Railway 客服系统 widget.js 网址");
+        return;
+      }
+
+      var script = document.createElement("script");
+      script.src = src;
+      script.async = true;
+      script.defer = true;
+
+      script.setAttribute("data-site", window.APP_CONFIG.CHAT_SITE || "f1top-10usdt");
+      script.setAttribute("data-title", window.APP_CONFIG.CHAT_TITLE || "F1-TOP 注册送10USDT体验金");
+      script.setAttribute("data-campaign", window.APP_CONFIG.CHAT_CAMPAIGN || "FB-广告A");
+
+      /*
+        打开落地页后自动弹出聊天室
+        true = 自动弹出
+        false = 不自动弹出，只显示按钮
+      */
+      script.setAttribute("data-auto-open", "true");
+
+      /*
+        自动弹出延迟毫秒
+        900 = 0.9秒
+      */
+      script.setAttribute("data-open-delay", "900");
+
+      /*
+        聊天室右下角默认按钮文字
+        如果你已经有页面右侧客服按钮，也可以保留这个
+      */
+      script.setAttribute("data-button-text", "💬");
+
+      document.body.appendChild(script);
     })();
   </script>
 </body>
