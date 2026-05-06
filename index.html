@@ -5,19 +5,22 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>F1-TOP-注册送10USDT体验金</title>
 
-<script>
-  window.APP_CONFIG = {
-    PIXEL_IDS: ["1253230530214080"],
-    TARGET_URL: "https://t.me/F1top10usdt_bot",
+  <script>
+    window.APP_CONFIG = {
+      PIXEL_IDS: ["1253230530214080"],
+      TARGET_URL: "https://t.me/F1top10usdt_bot",
 
-    CHAT_WIDGET_URL: "https://customer-chat-system-production.up.railway.app/widget.js",
+      /*
+        你的 Railway 客服系统 widget.js 网址
+      */
+      CHAT_WIDGET_URL: "https://customer-chat-system-production.up.railway.app/widget.js",
 
-    CHAT_SITE: "f1top-10usdt",
-    CHAT_TITLE: "F1-TOP 注册送10USDT体验金",
-    CHAT_CAMPAIGN: "FB-广告A",
+      CHAT_SITE: "f1top-10usdt",
+      CHAT_TITLE: "F1-TOP 注册送10USDT体验金",
+      CHAT_CAMPAIGN: "FB-广告A",
 
-    REDIRECT_DELAY: 800
-  };
+      REDIRECT_DELAY: 800
+    };
 
     !function(f,b,e,v,n,t,s){
       if(f.fbq) return;
@@ -161,11 +164,6 @@
       }
     }
 
-    /*
-      右侧客服按钮
-      如果你想继续使用原本 tg.png 图标，这里会自动使用 ./images/tg.png
-      点了之后不会跳 Telegram，会打开站内客服聊天窗口
-    */
     .chat-fab {
       position: absolute;
       right: 14px;
@@ -173,7 +171,7 @@
       transform: translateY(-50%);
       width: 58px;
       height: 58px;
-      z-index: 12;
+      z-index: 99999;
       display: block;
       border: 0;
       padding: 0;
@@ -258,7 +256,7 @@
       </a>
     </div>
 
-    <!-- 右侧客服按钮：已改成打开站内聊天室，不再跳 Telegram -->
+    <!-- 右侧客服按钮：点击后打开站内聊天室 -->
     <button
       class="chat-fab"
       id="openChatBtn"
@@ -398,11 +396,41 @@
         coinTimer = null;
       }
 
-      function openCustomerChat() {
+      function clickAnyPossibleChatButton() {
+        var selectors = [
+          "#customerChatButton",
+          "#chatButton",
+          "#chat-widget-button",
+          "#customer-chat-button",
+          ".customer-chat-button",
+          ".chat-widget-button",
+          ".chat-button",
+          ".chat-float-button",
+          ".chat-launcher",
+          "[data-chat-open]",
+          "[data-customer-chat-open]"
+        ];
+
+        for (var i = 0; i < selectors.length; i++) {
+          var btn = document.querySelector(selectors[i]);
+          if (btn) {
+            btn.click();
+            return true;
+          }
+        }
+
+        return false;
+      }
+
+      function openCustomerChat(showAlert) {
         trackChatClick(openChatBtn.getAttribute("data-area") || "site_chat_support");
 
         if (window.CustomerChat && typeof window.CustomerChat.open === "function") {
           window.CustomerChat.open();
+          return;
+        }
+
+        if (clickAnyPossibleChatButton()) {
           return;
         }
 
@@ -413,13 +441,29 @@
           if (window.CustomerChat && typeof window.CustomerChat.open === "function") {
             clearInterval(retryTimer);
             window.CustomerChat.open();
+            return;
           }
 
-          if (retryCount >= 20) {
+          if (clickAnyPossibleChatButton()) {
             clearInterval(retryTimer);
+            return;
+          }
+
+          if (retryCount >= 60) {
+            clearInterval(retryTimer);
+
+            console.warn("客服系统尚未成功开启。请确认 Railway 上的 widget.js 是否已经更新到 V3。");
+
+            if (showAlert) {
+              alert("客服系统尚未载入成功，请确认 Railway 客服系统已经重新部署 V3。");
+            }
           }
         }, 150);
       }
+
+      window.openCustomerChatFromLanding = function(){
+        openCustomerChat(true);
+      };
 
       startCoins();
 
@@ -451,12 +495,12 @@
 
       openChatBtn.addEventListener("click", function(e){
         e.preventDefault();
-        openCustomerChat();
+        openCustomerChat(true);
       }, { passive: false });
     })();
   </script>
 
-  <!-- 站内客服系统：请把 CHAT_WIDGET_URL 换成你的 Railway 客服系统网址 -->
+  <!-- 站内客服系统 -->
   <script>
     (function(){
       var src = window.APP_CONFIG.CHAT_WIDGET_URL;
@@ -466,8 +510,17 @@
         return;
       }
 
+      if (src.indexOf("http://") !== 0 && src.indexOf("https://") !== 0) {
+        src = "https://" + src;
+      }
+
       var script = document.createElement("script");
-      script.src = src;
+
+      /*
+        加 v 参数，避免手机或浏览器吃到旧版 widget.js 快取
+      */
+      script.src = src + (src.indexOf("?") === -1 ? "?v=" : "&v=") + Date.now();
+
       script.async = true;
       script.defer = true;
 
@@ -477,22 +530,30 @@
 
       /*
         打开落地页后自动弹出聊天室
-        true = 自动弹出
-        false = 不自动弹出，只显示按钮
       */
       script.setAttribute("data-auto-open", "true");
-
-      /*
-        自动弹出延迟毫秒
-        900 = 0.9秒
-      */
       script.setAttribute("data-open-delay", "900");
-
-      /*
-        聊天室右下角默认按钮文字
-        如果你已经有页面右侧客服按钮，也可以保留这个
-      */
       script.setAttribute("data-button-text", "💬");
+
+      script.onload = function(){
+        console.log("客服 widget.js 已载入：", script.src);
+
+        setTimeout(function(){
+          if (window.CustomerChat && typeof window.CustomerChat.open === "function") {
+            window.CustomerChat.open();
+            return;
+          }
+
+          if (typeof window.openCustomerChatFromLanding === "function") {
+            window.openCustomerChatFromLanding();
+          }
+        }, 900);
+      };
+
+      script.onerror = function(){
+        console.error("客服 widget.js 载入失败：", script.src);
+        alert("客服系统载入失败，请检查 Railway 网址是否正确。");
+      };
 
       document.body.appendChild(script);
     })();
