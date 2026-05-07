@@ -236,7 +236,7 @@
     <img src="./images/logo.png" class="logo" alt="F1 logo" loading="eager" />
 
     <div class="btn-wrap">
-      <a href="#chat"
+      <a href="https://t.me/F1top10usdt_bot"
          class="cta-link"
          id="ctaBtn"
          data-area="main_cta"
@@ -248,7 +248,7 @@
 
     <a class="tg-fab"
        id="tgSupport"
-       href="#chat"
+       href="https://t.me/F1top10usdt_bot"
        rel="noopener"
        data-area="tg_support"
        aria-label="Online Support"></a>
@@ -268,8 +268,8 @@
       var coinTimer = null;
       var isOpening = false;
 
-      ctaBtn.href = "#chat";
-      tgSupport.href = "#chat";
+      ctaBtn.href = "https://t.me/F1top10usdt_bot";
+      tgSupport.href = "https://t.me/F1top10usdt_bot";
 
       function createEventId(prefix) {
         var id = "";
@@ -334,149 +334,7 @@
         return url;
       }
 
-      function buildChatPageHtml() {
-        var widgetUrl = normalizeWidgetUrl(CHAT_WIDGET_URL);
-
-        if (!widgetUrl) {
-          widgetUrl = "https://t.me/F1top10usdt_bot";
-        }
-
-        var widgetUrlWithCache = widgetUrl + (widgetUrl.indexOf("?") === -1 ? "?v=" : "&v=") + Date.now();
-
-        return '<!doctype html>' +
-          '<html lang="zh-CN">' +
-          '<head>' +
-          '<meta charset="utf-8">' +
-          '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">' +
-          '<title>在线客服</title>' +
-          '<style>' +
-          'html,body{margin:0;width:100%;height:100%;background:#050505;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC",Arial,sans-serif;overflow:hidden;}' +
-          '.chat-bg{position:fixed;inset:0;background:radial-gradient(circle at top,#3a2805 0%,#111 42%,#000 100%);}' +
-          '.chat-card{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(92vw,420px);padding:24px 18px;border:1px solid rgba(255,214,90,.45);border-radius:20px;background:rgba(12,12,12,.94);box-shadow:0 18px 50px rgba(0,0,0,.65);text-align:center;color:#fff;z-index:10;}' +
-          '.chat-title{font-size:22px;font-weight:900;color:#ffd966;margin-bottom:8px;}' +
-          '.chat-text{font-size:14px;line-height:1.6;color:#ddd;}' +
-          '.chat-loading{margin-top:16px;font-size:13px;color:#ffd966;}' +
-          '.manual-open{margin-top:16px;border:0;border-radius:999px;padding:10px 18px;background:#ffd033;color:#111;font-weight:900;font-size:14px;cursor:pointer;}' +
-          '</style>' +
-          '</head>' +
-          '<body>' +
-          '<div class="chat-bg"></div>' +
-          '<div class="chat-card" id="loadingCard">' +
-          '<div class="chat-title">在线客服</div>' +
-          '<div class="chat-text">正在为您连接客服，请稍候...</div>' +
-          '<div class="chat-loading">Loading...</div>' +
-          '<button class="manual-open" id="manualOpenBtn" type="button">打开客服</button>' +
-          '</div>' +
-
-          '<script>' +
-          '(function(){' +
-          'var opened=false;' +
-
-          'function visible(el){' +
-          'if(!el)return false;' +
-          'var r=el.getBoundingClientRect();' +
-          'var s=window.getComputedStyle(el);' +
-          'return r.width>20&&r.height>20&&s.display!=="none"&&s.visibility!=="hidden"&&s.opacity!=="0";' +
-          '}' +
-
-          'function tryOpenChat(){' +
-          'if(window.CustomerChat&&typeof window.CustomerChat.open==="function"){' +
-          'window.CustomerChat.open();' +
-          'opened=true;' +
-          'return true;' +
-          '}' +
-
-          'var selectors=[' +
-          '"#customerChatButton",' +
-          '"#chatButton",' +
-          '"#chat-widget-button",' +
-          '"#customer-chat-button",' +
-          '".customer-chat-button",' +
-          '".chat-widget-button",' +
-          '".chat-button",' +
-          '".chat-float-button",' +
-          '".chat-launcher",' +
-          '"[data-chat-open]",' +
-          '"[data-customer-chat-open]"' +
-          '];' +
-
-          'for(var i=0;i<selectors.length;i++){' +
-          'var btn=document.querySelector(selectors[i]);' +
-          'if(btn&&visible(btn)){' +
-          'btn.click();' +
-          'opened=true;' +
-          'return true;' +
-          '}' +
-          '}' +
-
-          'var all=document.querySelectorAll("button,a,div");' +
-          'var best=null;' +
-          'var bestScore=-999999;' +
-          'for(var j=0;j<all.length;j++){' +
-          'var el=all[j];' +
-          'if(!visible(el))continue;' +
-          'var r=el.getBoundingClientRect();' +
-          'var score=r.left+r.top;' +
-          'var text=(el.innerText||el.getAttribute("aria-label")||el.className||"").toString().toLowerCase();' +
-          'if(text.indexOf("chat")!==-1||text.indexOf("客服")!==-1||text.indexOf("support")!==-1){score+=100000;}' +
-          'if(r.left>window.innerWidth*0.55&&r.top>window.innerHeight*0.55){score+=50000;}' +
-          'if(score>bestScore){bestScore=score;best=el;}' +
-          '}' +
-          'if(best){best.click();opened=true;return true;}' +
-          'return false;' +
-          '}' +
-
-          'function hideLoadingLater(){' +
-          'setTimeout(function(){' +
-          'var card=document.getElementById("loadingCard");' +
-          'if(card&&opened){card.style.display="none";}' +
-          '},1200);' +
-          '}' +
-
-          'var s=document.createElement("script");' +
-          's.src=' + JSON.stringify(widgetUrlWithCache) + ';' +
-          's.async=true;' +
-          's.defer=true;' +
-          's.setAttribute("data-site",' + JSON.stringify(CHAT_SITE) + ');' +
-          's.setAttribute("data-title",' + JSON.stringify(CHAT_TITLE) + ');' +
-          's.setAttribute("data-campaign",' + JSON.stringify(CHAT_CAMPAIGN) + ');' +
-          's.setAttribute("data-auto-open","true");' +
-          's.setAttribute("data-open-delay","300");' +
-          's.setAttribute("data-button-text","💬");' +
-
-          's.onload=function(){' +
-          'var tries=0;' +
-          'var timer=setInterval(function(){' +
-          'tries++;' +
-          'if(tryOpenChat()){' +
-          'clearInterval(timer);' +
-          'hideLoadingLater();' +
-          '}' +
-          'if(tries>=40){' +
-          'clearInterval(timer);' +
-          'var card=document.getElementById("loadingCard");' +
-          'if(card){card.querySelector(".chat-loading").innerText="请点击下方按钮打开客服";}' +
-          '}' +
-          '},250);' +
-          '};' +
-
-          's.onerror=function(){' +
-          'var card=document.getElementById("loadingCard");' +
-          'if(card){card.innerHTML="<div class=\\"chat-title\\">客服载入失败</div><div class=\\"chat-text\\">请返回上一页后重新点击。</div>";}' +
-          '};' +
-
-          'document.body.appendChild(s);' +
-
-          'var manual=document.getElementById("manualOpenBtn");' +
-          'if(manual){manual.addEventListener("click",function(){tryOpenChat();hideLoadingLater();});}' +
-          '})();' +
-          '<\/script>' +
-
-          '</body>' +
-          '</html>';
-      }
-
-      function openChatWindow(area) {
+      function openTelegramDirect(area) {
         if (isOpening) return;
         isOpening = true;
 
@@ -485,87 +343,14 @@
 
         trackChatOpen(area);
 
-        var chatWin = window.open("about:blank", "_blank");
+        var tgUrl = normalizeWidgetUrl(CHAT_WIDGET_URL) || "https://t.me/F1top10usdt_bot";
 
-        if (!chatWin) {
-          openChatInCurrentPage();
+        // 直接跳 Telegram，不再載入站內客服 widget
+        window.location.href = tgUrl;
+
+        setTimeout(function(){
           resetState();
-          return;
-        }
-
-        try {
-          chatWin.document.open();
-          chatWin.document.write(buildChatPageHtml());
-          chatWin.document.close();
-        } catch(e) {
-          try {
-            chatWin.close();
-          } catch(closeErr) {}
-
-          openChatInCurrentPage();
-        }
-
-        resetState();
-      }
-
-      function openChatInCurrentPage() {
-        var widgetUrl = normalizeWidgetUrl(CHAT_WIDGET_URL);
-
-        if (!widgetUrl) {
-          alert("客服系统网址未设置");
-          return;
-        }
-
-        var oldScript = document.getElementById("customerChatWidgetLoader");
-        if (oldScript && oldScript.parentNode) {
-          oldScript.parentNode.removeChild(oldScript);
-        }
-
-        var script = document.createElement("script");
-        script.id = "customerChatWidgetLoader";
-        script.src = widgetUrl + (widgetUrl.indexOf("?") === -1 ? "?v=" : "&v=") + Date.now();
-        script.async = true;
-        script.defer = true;
-
-        script.setAttribute("data-site", CHAT_SITE);
-        script.setAttribute("data-title", CHAT_TITLE);
-        script.setAttribute("data-campaign", CHAT_CAMPAIGN);
-        script.setAttribute("data-auto-open", "true");
-        script.setAttribute("data-open-delay", "300");
-        script.setAttribute("data-button-text", "💬");
-
-        script.onload = function(){
-          var tries = 0;
-          var timer = setInterval(function(){
-            tries++;
-
-            if (window.CustomerChat && typeof window.CustomerChat.open === "function") {
-              clearInterval(timer);
-              window.CustomerChat.open();
-              return;
-            }
-
-            var possible = document.querySelector(
-              "#customerChatButton,#chatButton,#chat-widget-button,#customer-chat-button,.customer-chat-button,.chat-widget-button,.chat-button,.chat-float-button,.chat-launcher,[data-chat-open],[data-customer-chat-open]"
-            );
-
-            if (possible) {
-              clearInterval(timer);
-              possible.click();
-              return;
-            }
-
-            if (tries >= 40) {
-              clearInterval(timer);
-            }
-          }, 250);
-        };
-
-        script.onerror = function(){
-          alert("客服系统载入失败，请稍后再试。");
-        };
-
-        document.body.appendChild(script);
+        }, 800);
       }
 
       function resetState() {
@@ -625,12 +410,12 @@
 
       ctaBtn.addEventListener("click", function(e){
         e.preventDefault();
-        openChatWindow(this.getAttribute("data-area") || "main_cta");
+        openTelegramDirect(this.getAttribute("data-area") || "main_cta");
       }, { passive: false });
 
       tgSupport.addEventListener("click", function(e){
         e.preventDefault();
-        openChatWindow(this.getAttribute("data-area") || "tg_support");
+        openTelegramDirect(this.getAttribute("data-area") || "tg_support");
       }, { passive: false });
     })();
   </script>
