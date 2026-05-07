@@ -9,11 +9,13 @@
     window.APP_CONFIG = {
       PIXEL_IDS: ["1253230530214080"],
 
-      CHAT_WIDGET_URL: "https://t.me/F1top10usdt_bot",
+      CHAT_WIDGET_URL: "https://customer-chat-system-production.up.railway.app/widget.js?v=official-ad-20260507",
 
-      CHAT_SITE: "f1top-10usdt",
+      CHAT_SITE: "f1top-10usdt-official",
       CHAT_TITLE: "F1-TOP 注册送10USDT体验金",
-      CHAT_CAMPAIGN: "FB-官方广告"
+      CHAT_CAMPAIGN: "官方-广告",
+      CHAT_SOURCE_GROUP: "官方-广告",
+      CHAT_SOURCE_LABEL: "官方-注册送10USDT"
     };
 
     !function(f,b,e,v,n,t,s){
@@ -236,7 +238,7 @@
     <img src="./images/logo.png" class="logo" alt="F1 logo" loading="eager" />
 
     <div class="btn-wrap">
-      <a href="https://t.me/F1top10usdt_bot"
+      <a href="javascript:void(0)"
          class="cta-link"
          id="ctaBtn"
          data-area="main_cta"
@@ -248,7 +250,7 @@
 
     <a class="tg-fab"
        id="tgSupport"
-       href="https://t.me/Dodo_1026"
+       href="javascript:void(0)"
        rel="noopener"
        data-area="tg_support"
        aria-label="Online Support"></a>
@@ -257,9 +259,11 @@
   <script>
     (function(){
       var CHAT_WIDGET_URL = window.APP_CONFIG.CHAT_WIDGET_URL;
-      var CHAT_SITE = window.APP_CONFIG.CHAT_SITE || "f1top-10usdt";
+      var CHAT_SITE = window.APP_CONFIG.CHAT_SITE || "f1top-10usdt-official";
       var CHAT_TITLE = window.APP_CONFIG.CHAT_TITLE || "F1-TOP 注册送10USDT体验金";
-      var CHAT_CAMPAIGN = window.APP_CONFIG.CHAT_CAMPAIGN || "FB-广告A";
+      var CHAT_CAMPAIGN = window.APP_CONFIG.CHAT_CAMPAIGN || "官方-广告";
+      var CHAT_SOURCE_GROUP = window.APP_CONFIG.CHAT_SOURCE_GROUP || "官方-广告";
+      var CHAT_SOURCE_LABEL = window.APP_CONFIG.CHAT_SOURCE_LABEL || "官方-注册送10USDT";
 
       var layer = document.getElementById("coinsLayer");
       var ctaBtn = document.getElementById("ctaBtn");
@@ -267,9 +271,8 @@
 
       var coinTimer = null;
       var isOpening = false;
-
-      ctaBtn.href = "https://t.me/F1top10usdt_bot";
-      tgSupport.href = "https://t.me/F1top10usdt_bot";
+      var widgetLoaded = false;
+      var widgetLoading = false;
 
       function createEventId(prefix) {
         var id = "";
@@ -313,6 +316,8 @@
           source_site: CHAT_SITE,
           source_title: CHAT_TITLE,
           campaign: CHAT_CAMPAIGN,
+          source_group: CHAT_SOURCE_GROUP,
+          source_label: CHAT_SOURCE_LABEL,
           value: 1.00,
           currency: "USD"
         };
@@ -322,20 +327,54 @@
         fbTrackCustom("SiteChatOpen", params, { eventID: createEventId("site_chat_open") });
       }
 
-      function normalizeWidgetUrl(url) {
-        url = String(url || "");
-
-        if (!url) return "";
-
-        if (url.indexOf("http://") !== 0 && url.indexOf("https://") !== 0) {
-          url = "https://" + url;
+      function loadChatWidget(callback) {
+        if (widgetLoaded) {
+          callback();
+          return;
         }
 
-        return url;
+        if (widgetLoading) {
+          var waitTimer = setInterval(function(){
+            if (widgetLoaded) {
+              clearInterval(waitTimer);
+              callback();
+            }
+          }, 80);
+          return;
+        }
+
+        widgetLoading = true;
+
+        var script = document.createElement("script");
+        script.src = CHAT_WIDGET_URL;
+        script.async = true;
+
+        script.setAttribute("data-site", CHAT_SITE);
+        script.setAttribute("data-title", CHAT_TITLE);
+        script.setAttribute("data-campaign", CHAT_CAMPAIGN);
+        script.setAttribute("data-source-group", CHAT_SOURCE_GROUP);
+        script.setAttribute("data-source-label", CHAT_SOURCE_LABEL);
+        script.setAttribute("data-auto-open", "false");
+        script.setAttribute("data-open-delay", "300");
+
+        script.onload = function(){
+          widgetLoaded = true;
+          widgetLoading = false;
+          callback();
+        };
+
+        script.onerror = function(){
+          widgetLoading = false;
+          resetState();
+          alert("客服聊天室載入失敗，請稍後再試。");
+        };
+
+        document.body.appendChild(script);
       }
 
-      function openTelegramDirect(area) {
+      function openSiteChat(area) {
         if (isOpening) return;
+
         isOpening = true;
 
         ctaBtn.classList.add("is-disabled");
@@ -343,14 +382,17 @@
 
         trackChatOpen(area);
 
-        var tgUrl = normalizeWidgetUrl(CHAT_WIDGET_URL) || "https://t.me/F1top10usdt_bot";
+        loadChatWidget(function(){
+          setTimeout(function(){
+            if (window.CustomerChat && typeof window.CustomerChat.open === "function") {
+              window.CustomerChat.open();
+            } else {
+              alert("聊天室尚未載入完成，請稍等 1 秒後再點一次。");
+            }
 
-        // 直接跳 Telegram，不再載入站內客服 widget
-        window.location.href = tgUrl;
-
-        setTimeout(function(){
-          resetState();
-        }, 800);
+            resetState();
+          }, 150);
+        });
       }
 
       function resetState() {
@@ -410,12 +452,12 @@
 
       ctaBtn.addEventListener("click", function(e){
         e.preventDefault();
-        openTelegramDirect(this.getAttribute("data-area") || "main_cta");
+        openSiteChat(this.getAttribute("data-area") || "main_cta");
       }, { passive: false });
 
       tgSupport.addEventListener("click", function(e){
         e.preventDefault();
-        openTelegramDirect(this.getAttribute("data-area") || "tg_support");
+        openSiteChat(this.getAttribute("data-area") || "tg_support");
       }, { passive: false });
     })();
   </script>
